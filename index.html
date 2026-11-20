@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>المقدّر الذكي</title>
+<meta name="description" content="احكِ حالة المكلف بالعربية، فيفهمها المقدّر ويحسب ضريبة الدخل وض.ق.م والجمارك حسب القانون الفلسطيني، مع المادة القانونية لكل سطر.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg class="seal" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="24" cy="24" r="15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 2.5"/><path d="M16 27h16M18 21h12M24 14v20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+    <div>
+      <h1>المقدّر الذكي</h1>
+      <p class="sub">احكِ الحالة بالعربي، وخذ ورقة تقدير كاملة بالمواد القانونية</p>
+    </div>
+  </div>
+  <button class="ghost" id="openSettings" type="button">إعداد Claude</button>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="نوع الحساب">
+  <button role="tab" aria-selected="true" data-tab="person">شخص طبيعي</button>
+  <button role="tab" aria-selected="false" data-tab="company">شركة</button>
+  <button role="tab" aria-selected="false" data-tab="vat">ضريبة القيمة المضافة</button>
+  <button role="tab" aria-selected="false" data-tab="import">الاستيراد والجمارك</button>
+  <button role="tab" aria-selected="false" data-tab="classify">تصنيف الصفقات</button>
+</nav>
+
+<main>
+  <!-- شخص طبيعي -->
+  <section class="panel" id="tab-person" role="tabpanel">
+    <div class="work">
+      <div class="desk">
+        <label class="lbl" for="story">حالة المكلف</label>
+        <textarea id="story" rows="7" placeholder="مثال: موظف في وزارة براتب 4000 شهرياً لمدة 5 أشهر، وبدل مواصلات 600 شهرياً، وله محل تجاري ربحه 90 ألف، وابنه في الجامعة، وتبرع بـ 25 ألف."></textarea>
+        <div class="examples" aria-label="أمثلة من امتحانات سابقة">
+          <span>أمثلة:</span>
+          <button type="button" data-ex="mustafa">نموذج 1، س1</button>
+          <button type="button" data-ex="ahmad">نموذج 1، س2</button>
+          <button type="button" data-ex="mohammad">نموذج 1، س3</button>
+          <button type="button" data-ex="hamdi">امتحان حمدي</button>
+          <button type="button" data-ex="full">موظف بكل الإعفاءات</button>
+        </div>
+        <div class="actions">
+          <button class="primary" id="analyzeLocal" type="button">حلّل الحالة</button>
+          <button class="secondary" id="analyzeAI" type="button">حلّل بـ Claude</button>
+        </div>
+        <p class="status" id="aiStatus" role="status" aria-live="polite"></p>
+        <ul class="assumptions" id="assumptions" hidden></ul>
+
+        <details class="facts" id="factsBox" open>
+          <summary>ما فهمه المقدّر <small>(عدّل أي رقم وتتغير الورقة فوراً)</small></summary>
+          <form id="personForm" class="grid" autocomplete="off"></form>
+        </details>
+      </div>
+      <article class="sheet" id="personSheet" aria-live="polite"></article>
+    </div>
+  </section>
+
+  <!-- شركة -->
+  <section class="panel" id="tab-company" role="tabpanel" hidden>
+    <div class="work">
+      <div class="desk">
+        <div class="examples"><span>أمثلة:</span>
+          <button type="button" data-cex="public">شركة مساهمة عامة (مسألة 4)</button>
+          <button type="button" data-cex="big">شركة كبيرة (مسألة 7)</button>
+          <button type="button" data-cex="united">الشركة المتحدة (نموذج 1، س7)</button>
+        </div>
+        <form id="companyForm" class="grid" autocomplete="off"></form>
+        <h3 class="mini">المصاريف</h3>
+        <div id="expenseRows" class="rows"></div>
+        <button type="button" class="ghost" id="addExpense">أضف مصروفاً</button>
+      </div>
+      <article class="sheet" id="companySheet" aria-live="polite"></article>
+    </div>
+  </section>
+
+  <!-- ض.ق.م -->
+  <section class="panel" id="tab-vat" role="tabpanel" hidden>
+    <div class="work">
+      <div class="desk">
+        <div class="examples"><span>أمثلة:</span>
+          <button type="button" data-vex="samer">محلات سامر (نموذج 1، س5)</button>
+          <button type="button" data-vex="t1">تدريب 1 (فاتورة قديمة)</button>
+          <button type="button" data-vex="t3">تدريب 3 (صفقات معفاة)</button>
+        </div>
+        <div class="field inline"><label for="turnover">حصيلة الصفقات السنوية (لتصنيف المكلف)</label><input id="turnover" type="number" inputmode="decimal" min="0" value="250000"></div>
+        <p class="classline" id="taxpayerClass"></p>
+        <h3 class="mini">العمليات خلال الشهر</h3>
+        <div id="vatRows" class="rows"></div>
+        <button type="button" class="ghost" id="addVat">أضف عملية</button>
+      </div>
+      <article class="sheet" id="vatSheet" aria-live="polite"></article>
+    </div>
+  </section>
+
+  <!-- استيراد -->
+  <section class="panel" id="tab-import" role="tabpanel" hidden>
+    <div class="work">
+      <div class="desk">
+        <div class="examples"><span>أمثلة:</span>
+          <button type="button" data-iex="said">سعيد من الصين (نموذج 1، س4)</button>
+          <button type="button" data-iex="ex5">مثال 5 في الكتاب</button>
+          <button type="button" data-iex="oil">الزيوت العطرية (تعلية)</button>
+          <button type="button" data-iex="shirts">القمصان (حد أدنى)</button>
+        </div>
+        <form id="importForm" class="grid" autocomplete="off"></form>
+      </div>
+      <article class="sheet" id="importSheet" aria-live="polite"></article>
+    </div>
+  </section>
+
+  <!-- تصنيف -->
+  <section class="panel" id="tab-classify" role="tabpanel" hidden>
+    <div class="work">
+      <div class="desk">
+        <label class="lbl" for="classifyInput">اكتب كل صفقة في سطر</label>
+        <textarea id="classifyInput" rows="11">بيع اراضي مستأجرة محمية بموجب نظام الخلو او المفتاحية
+خدمات النقل الداخلي
+فرق العملة عند تبديل العملات
+ايداع اموال في البنوك
+مبيعات خدمات لاشخاص يقيمون في الخارج
+بيع الماس الصناعي
+مبيعات البضائع والخدمات في الفنادق للسائحين
+بيع الخضار
+تحويل عملة للخارج
+ايراد تاجير محل</textarea>
+      </div>
+      <article class="sheet" id="classifySheet" aria-live="polite"></article>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>أداة تعليمية مبنية على كتاب «المحاسبة الضريبية وتطبيقاتها في فلسطين» (الفصول 1-4 و8) وقرار بقانون ضريبة الدخل رقم 8 لسنة 2011 وتعديلاته. ليست استشارة ضريبية.</p>
+</footer>
+
+<dialog id="settings">
+  <form method="dialog" class="dlg">
+    <h2>تحليل الحالة بـ Claude</h2>
+    <p>المحلل المحلي يفهم الصيغ الشائعة. Claude يفهم أي صياغة، ويذكر افتراضاته. الحساب نفسه يبقى في المحرك الدقيق، لا في النموذج.</p>
+    <label for="apiKey">مفتاح Anthropic API</label>
+    <input id="apiKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-...">
+    <p class="hint">يُحفظ في متصفحك فقط، ويُرسل مباشرة إلى api.anthropic.com.</p>
+    <div class="actions">
+      <button class="primary" value="save">احفظ</button>
+      <button class="ghost" value="clear" id="clearKey">احذف المفتاح</button>
+      <button class="ghost" value="cancel">إغلاق</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="src/engine.js"></script>
+<script src="src/parser.js"></script>
+<script src="src/app.js"></script>
+</body>
+</html>

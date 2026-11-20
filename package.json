@@ -1,0 +1,11 @@
+{
+  "name": "smart-tax-assessor",
+  "version": "1.0.0",
+  "description": "المقدّر الذكي: يفهم حالة المكلف بالعربية ويحسب ضريبة الدخل وض.ق.م والجمارك حسب القانون الفلسطيني",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/engine.test.js",
+    "start": "node tools/serve.js"
+  }
+}
